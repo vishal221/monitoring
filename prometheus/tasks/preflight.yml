@@ -5,6 +5,7 @@
     that: ansible_service_mgr == 'systemd'
     msg: "This module only works with systemd"
 
+
 - name: Discover latest version
   ansible.builtin.set_fact:
     prometheus_version: "{{ (lookup('url', 'https://api.github.com/repos/prometheus/prometheus/releases/latest', headers=_github_api_headers,
@@ -34,4 +35,4 @@
         __prometheus_checksum: "{{ item.split(' ')[0] }}"
       with_items: "{{ __prometheus_checksums }}"
       when:
-        - "('linux-' + go_arch + '.tar.gz') in item"        
+        - "('linux-' + go_arch + '.tar.gz') in item"
