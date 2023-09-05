@@ -1,0 +1,29 @@
+---
+
+
+- name: Preflight
+  ansible.builtin.include_tasks:
+    file: preflight.yml
+    apply:
+      tags:
+        - prometheus_configure
+        - prometheus_install
+        - prometheus_run
+  tags:
+    - prometheus_configure
+    - prometheus_install
+    - prometheus_run
+
+
+- name: Install
+  ansible.builtin.include_tasks:
+    file: install.yml
+    apply:
+      become: true
+      tags:
+        - prometheus_install
+  tags:
+    - prometheus_install  
+
+# - name: Update apt cache
+#   apt: update_cache=yes
