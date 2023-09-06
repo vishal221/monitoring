@@ -1,0 +1,9 @@
+---
+# handlers file for apache_exporter
+- name: Restart apache exporter
+  listen: "restart apache_exporter"
+  become: true
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: apache_exporter
+    state: restarted

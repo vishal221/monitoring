@@ -24,11 +24,11 @@ scrape_configs:
     static_configs:
       - targets: ["localhost:9090"]
 
-  - job_name: apache1
+  - job_name: apache
     static_configs:
-      - targets: ['172.31.35.204:9125']
+      - targets: ['172.31.44.48:9117']
         labels:
-          alias: server1-apache
+          alias: server-apache
 
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
