@@ -1,0 +1,98 @@
+---
+# tasks file for alert-manager
+- name: Create prometheus system group
+  ansible.builtin.group:
+    name: prometheus
+    system: true
+    state: present
+
+- name: Create prometheus system user
+  ansible.builtin.user:
+    name: alertmanager
+    system: true
+    shell: "/usr/sbin/nologin"
+    group: prometheus
+    createhome: false
+
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: /etc/alertmanager/data
+    state: directory
+    mode: '0755'
+
+- name: Recursively change ownership of a directory
+  ansible.builtin.file:
+    path: /etc/alertmanager
+    state: directory
+    recurse: yes
+    owner: alertmanager
+    group: prometheus
+
+
+- name: Get alert manager binary
+  block:
+
+    - name: Download alert manager binary to local folder
+      become: false
+      ansible.builtin.get_url:
+        url: "https://github.com/prometheus/alertmanager/releases/download/v0.26.0/alertmanager-0.26.0.linux-amd64.tar.gz"
+        dest: "/tmp/alertmanager-0.26.0.linux-amd64.tar.gz"
+        mode: 0644
+      register: _download_archive
+      until: _download_archive is succeeded
+      retries: 5
+      delay: 2
+      # run_once: true # <-- this cannot be set due to multi-arch support
+      delegate_to: localhost
+      check_mode: false
+
+    - name: Unpack alert manager binaries
+      become: false
+      ansible.builtin.unarchive:
+        src: "/tmp/alertmanager-0.26.0.linux-amd64.tar.gz"
+        dest: "/tmp"
+        creates: "/tmp/alertmanager-0.26.0.linux-amd64"
+      delegate_to: localhost
+      check_mode: false
+
+    - name: Copy alert manager binaries to /usr/local/bin
+      ansible.builtin.copy:
+        src: "/tmp/alertmanager-0.26.0.linux-amd64/{{ item }}"
+        dest: "/usr/local/bin"
+        mode: 0755
+        owner: root
+        group: root    
+      with_items:
+        - alertmanager
+        - amtool  
+
+    - name: Copy alert manager configuration file
+      ansible.builtin.copy:
+        src: "alertmanager.yml"
+        dest: "/etc/alertmanager"
+        force: true
+        mode: 0755
+        owner: alertmanager
+        group: prometheus    
+      
+- name: Create systemd service unit
+  ansible.builtin.copy:
+    src: alertmanager.service
+    dest: /etc/systemd/system/alertmanager.service
+    force: true
+    mode: 0755
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - reload alertmanager
+    - restart alertmanager   
+
+
+
+
+
+
+
+
+
