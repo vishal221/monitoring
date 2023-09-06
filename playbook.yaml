@@ -1,12 +1,12 @@
-- hosts: webserver 
-  become: yes
-  vars:
-    docker_compose_version: "1.27.4"
-    ansible_user: ubuntu
-  tasks:
+# - hosts: webserver 
+#   become: yes
+#   vars:
+#     docker_compose_version: "1.27.4"
+#     ansible_user: ubuntu
+#   tasks:
 
-    # - name: Update apt cache
-    #   apt: update_cache=yes
+#     # - name: Update apt cache
+#     #   apt: update_cache=yes
 
 - hosts: apachewebserver 
   become: yes
@@ -34,6 +34,7 @@
     ansible_user: ubuntu
   
   roles:
+    - alert-manager
     - prometheus
  
     

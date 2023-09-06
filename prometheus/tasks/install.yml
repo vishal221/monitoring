@@ -131,7 +131,18 @@
     group: prometheus
     mode: 0640
   notify:
-    - reload prometheus  
+    - reload prometheus
+
+- name: Configure alerts
+  ansible.builtin.copy:
+    src: "alert_rules.yml"
+    dest: "{{ prometheus_config_dir }}/alert_rules.yml"
+    force: true
+    mode: 0755
+    owner: root
+    group: prometheus
+  notify:
+    - reload prometheus      
 
 # - name: Create systemd service unit
 #   ansible.builtin.template:
