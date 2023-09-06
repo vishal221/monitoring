@@ -1,0 +1,80 @@
+---
+# tasks file for nginx_exporter
+
+- name: Install nginx   (state=present is optional)
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+
+- name: Copy nginx config
+  ansible.builtin.copy:
+    src: "nginx.conf"
+    dest: "/etc/nginx"
+    force: true
+    # mode: 0755
+    owner: root
+    group: root
+  notify:
+    - restart nginx
+
+# tasks file for apache_exporter
+- name: Create prometheus system group
+  ansible.builtin.group:
+    name: prometheus
+    system: true
+    state: present
+
+- name: Create nginx_exporter system user
+  ansible.builtin.user:
+    name: nginx-exporter
+    system: true
+    shell: "/usr/sbin/nologin"
+    group: prometheus
+    createhome: false
+
+- name: Get apache exporter binary
+  block:
+
+    - name: Download nginx exporter binary to local folder
+      become: false
+      ansible.builtin.get_url:
+        url: "https://github.com/nginxinc/nginx-prometheus-exporter/releases/download/v0.11.0/nginx-prometheus-exporter_0.11.0_linux_amd64.tar.gz"
+        dest: "/tmp/nginx-prometheus-exporter_0.11.0_linux_amd64.tar.gz"
+        mode: 0644
+      register: _download_archive
+      until: _download_archive is succeeded
+      retries: 5
+      delay: 2
+      # run_once: true # <-- this cannot be set due to multi-arch support
+      delegate_to: localhost
+      check_mode: false
+
+    - name: Unpack nginx exporter binaries
+      become: false
+      ansible.builtin.unarchive:
+        src: "/tmp/nginx-prometheus-exporter_0.11.0_linux_amd64.tar.gz"
+        dest: "/tmp"
+        creates: "/tmp/nginx-prometheus-exporter_0.11.0_linux_amd64"
+      delegate_to: localhost   
+      check_mode: false
+
+    - name: Copy nginx exporter binaries to /usr/local/bin
+      ansible.builtin.copy:
+        src: "/tmp/nginx-prometheus-exporter"
+        dest: "/usr/local/bin"
+        mode: 0755
+        owner: root
+        group: root  
+
+
+- name: Create systemd service unit for nginx exporter
+  ansible.builtin.copy:
+    src: nginx-exporter.service
+    dest: /etc/systemd/system/nginx-exporter.service
+    force: true
+    mode: 0755
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart nginx_exporter

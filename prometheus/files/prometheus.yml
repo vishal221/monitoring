@@ -30,6 +30,12 @@ scrape_configs:
         labels:
           alias: server-apache
 
+  - job_name: nginx
+    static_configs:
+      - targets: ['172.31.34.95:9113']
+        labels:
+          alias: server-nginx        
+
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
 

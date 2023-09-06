@@ -49,15 +49,15 @@
         owner: root
         group: root
 
-    - name: Create systemd service unit
-      ansible.builtin.copy:
-        src: apache_exporter.service
-        dest: /etc/systemd/system/apache_exporter.service
-        force: true
-        mode: 0755
-        owner: root
-        group: root
-        mode: 0644
-      notify:
-        - restart apache_exporter    
+- name: Create systemd service unit
+  ansible.builtin.copy:
+    src: apache_exporter.service
+    dest: /etc/systemd/system/apache_exporter.service
+    force: true
+    mode: 0755
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart apache_exporter    
       

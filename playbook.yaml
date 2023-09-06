@@ -17,6 +17,15 @@
   roles:
     - apache_exporter
 
+- hosts: webserver 
+  become: yes
+  vars:
+    docker_compose_version: "1.27.4"
+    ansible_user: ubuntu
+  
+  roles:
+    - nginx_exporter    
+
 
 - hosts: monitoring 
   become: yes

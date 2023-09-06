@@ -1,0 +1,18 @@
+---
+# handlers file for nginx
+- name: Restart nginx
+  listen: "restart nginx"
+  become: true
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: nginx
+    state: restarted
+
+ # handlers file for nginx_exporter
+- name: Restart nginx exporter
+  listen: "restart nginx_exporter"
+  become: true
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: nginx-exporter
+    state: restarted   
